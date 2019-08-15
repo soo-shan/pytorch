@@ -98,9 +98,6 @@ print('Done writing to file')
 
 # Visualise some lines
 datafile = os.path.join('data/cornell_movie_dialogs_corpus','formatted_movie_lines.txt')
-try:
-
-datafile = os.path.join('data/cornell_movie_dialogs_corpus','formatted_movie_lines.txt')
 with open(datafile,'rb') as file:
     lines = file.readlines()
 for line in lines[:8]:
