@@ -13,18 +13,16 @@ import itertools
 CUDA = torch.cuda.is_available()
 device = torch.device("cuda" if CUDA else "cpu")
 
-# # Part 1 Data Preprocessing
+# # Data Preprocessing
 lines_filepath = os.path.join('data/cornell_movie_dialogs_corpus','movie_lines.txt')
-conv_filepath = os.path.join('data/cornell_movie_dialogs_corpus','movie_conversations.txt')
-print(lines_filepath)
-print(conv_filepath)
 
-# visualize some lines
-with open(lines_filepath,'r',encoding = 'ISO-8859-14') as file:
-    lines = file.readlines()
+# print(lines_filepath)
 
-for line in lines[:8]:
-    print(line.strip())
+# # visualize some lines
+# with open(lines_filepath,'r',encoding = 'ISO-8859-14') as file:
+#     lines = file.readlines()
+# for line in lines[:8]:
+#     print(line.strip())
 
 
 # lineid  characterid   moviesid character_name     Dialogue
@@ -36,6 +34,7 @@ for line in lines[:8]:
 # L924 +++$+++ u2 +++$+++ m0 +++$+++ CAMERON +++$+++ Wow
 
 # Split each line fo the file into a dictionary of fields(lineID, characterID,movieID,character,text)
+
 line_fields = ['lineId','characterId','moviesId','character','text']
 lines = {}
 with open(lines_filepath,'r',encoding='ISO-8859-1') as f:
@@ -44,7 +43,70 @@ with open(lines_filepath,'r',encoding='ISO-8859-1') as f:
         # Extract fields
         lineObj = {}
         for i, field in enumerate(line_fields):
-            lineObj[]
+            lineObj[field] = values[i]
+        lines[lineObj['lineId']] = lineObj
+
+# print(list(lines.items())[0])
+
+# Group fields of lines from 'loadlines' into conversations 
+# based on movie_conversations.txt
+conv_fields = ['character1Id','character2Id','movieId','utteranceIds']
+conv_filepath = os.path.join('data/cornell_movie_dialogs_corpus','movie_conversations.txt')
+# print(conv_filepath)
+
+conversations = []
+with open(conv_filepath,'r') as f:
+    for line in f:
+        values = line.split(' +++$+++ ')
+        # Extract fields
+        convObj = {}
+        for i,field in enumerate(conv_fields):
+            convObj[field] = values[i]
+        # convert string result from split to list
+        lineIds = eval(convObj['utteranceIds'])
+        # Reassemble lines
+        convObj['lines']=[]
+        for lineId in lineIds:
+            convObj['lines'].append(lines[lineId])
+        conversations.append(convObj)
+# print(conversations[0])
+
+# Extract pairs of sentences from conversation
+qa_pairs = []
+for conversation in conversations:
+    # iterate over all the lines of conversation
+    for i in range(len(conversation['lines']) - 1):
+        inputLine = conversation['lines'][i]['text'].strip()
+        targetLine = conversation['lines'][i+1]['text'].strip()
+        # Filter wrong samples(if any of the list is empty)
+        if inputLine and targetLine:
+            qa_pairs.append([inputLine,targetLine])
+
+# Define path to new file
+datafile = os.path.join('data/cornell_movie_dialogs_corpus','formatted_movie_lines.txt')
+delimiter = '\t'
+# unescape the delimiter
+delimiter = str(codecs.decode(delimiter,'unicode_escape'))
+
+# write new csv file
+print('\nWriting newly formatted file...')
+with open(datafile,'w',encoding='utf-8') as outputfile:
+    writer = csv.writer(outputfile,delimiter=delimiter)
+    for pair in qa_pairs:
+        writer.writerow(pair)
+print('Done writing to file')
+
+# Visualise some lines
+datafile = os.path.join('data/cornell_movie_dialogs_corpus','formatted_movie_lines.txt')
+try:
+
+datafile = os.path.join('data/cornell_movie_dialogs_corpus','formatted_movie_lines.txt')
+with open(datafile,'rb') as file:
+    lines = file.readlines()
+for line in lines[:8]:
+    print(line)
+
+
 
 
 
