@@ -88,20 +88,22 @@ delimiter = '\t'
 # unescape the delimiter
 delimiter = str(codecs.decode(delimiter,'unicode_escape'))
 
-# write new csv file
-print('\nWriting newly formatted file...')
-with open(datafile,'w',encoding='utf-8') as outputfile:
-    writer = csv.writer(outputfile,delimiter=delimiter)
-    for pair in qa_pairs:
-        writer.writerow(pair)
-print('Done writing to file')
+# # write new csv file
+# print('\nWriting newly formatted file...')
+# with open(datafile,'w',encoding='utf-8') as outputfile:
+#     writer = csv.writer(outputfile,delimiter=delimiter)
+#     for pair in qa_pairs:
+#         writer.writerow(pair)
+# print('Done writing to file')
 
-# Visualise some lines
-datafile = os.path.join('data/cornell_movie_dialogs_corpus','formatted_movie_lines.txt')
-with open(datafile,'rb') as file:
-    lines = file.readlines()
-for line in lines[:8]:
-    print(line)
+# # Visualise some lines
+# datafile = os.path.join('data/cornell_movie_dialogs_corpus','formatted_movie_lines.txt')
+# with open(datafile,'rb') as file:
+#     lines = file.readlines()
+# for line in lines[:8]:
+#     print(line)
+
+
 
 
 
