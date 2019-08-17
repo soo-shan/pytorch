@@ -6,9 +6,9 @@ import csv
 import random
 import re
 import os
-import unicodedata
 import codecs
 import itertools
+from vocab import Vocabulary
 
 CUDA = torch.cuda.is_available()
 device = torch.device("cuda" if CUDA else "cpu")

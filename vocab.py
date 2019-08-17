@@ -30,13 +30,17 @@ class Vocabulary:
             if v >= min_count:
                 keep_words.append(k)
         
-                print('keep words {}/{}={:.4f}'.format(len(keep_words),len(self.word2index),len(keep_words)/len(self.word2index))
+                print('keep words {}/{}={:.4f}'.format(len(keep_words),len(self.word2index),len(keep_words)/len(self.word2index)))
                 # Reinitialize dictionaries
                 self.word2index = {}
-                self.wor2count = {}
+                self.word2count = {}
                 self.index2word = {PAD_token:'PAD',SOS_token:'SOS', EOS_token:'EOS'}
                 self.num_words = 3 #count default tokens
 
-                for word in keep_words:
-                    self.addWord(word)
-                    
+        for word in keep_words:
+            self.addWord(word)
+
+# ms_dict =  Vocabulary('msdict')
+# ms_dict.addSentence('this is first test sentence')
+# ms_dict.addSentence('this is the next sentence and this will be fun to the add. please add more words and sentence')
+# ms_dict.trim(2)
