@@ -4,11 +4,11 @@ from torch import optim
 import torch.nn.functional as F
 import csv
 import random
-import re
 import os
 import codecs
 import itertools
 from vocab import Vocabulary
+from utils import normalizeString, filterPairs
 
 CUDA = torch.cuda.is_available()
 device = torch.device("cuda" if CUDA else "cpu")
@@ -102,6 +102,19 @@ delimiter = str(codecs.decode(delimiter,'unicode_escape'))
 #     lines = file.readlines()
 # for line in lines[:8]:
 #     print(line)
+
+# Read the datafile and split into lines
+print('Reading and processing file. \nPlease wait ...')
+lines = open(datafile,encoding='utf-8').read().strip().split('\n')
+# Split every line into pairs and normalize
+pairs = [[normalizeString(s) for s in pair.split('\t')] for pair in lines]
+print('Done Reading!')
+
+# Instantial a vocabulary class
+voc = Vocabulary('Cornell Movie-Dialogue Corpus')
+
+pairs = filterPairs(pairs,MAX_LENGTH = 10)
+print('After filtering, there are {} conversation pairs'.format(len(pairs)))
 
 
 
