@@ -8,7 +8,7 @@ import os
 import codecs
 import itertools
 from vocab import Vocabulary
-from utils import normalizeString, filterPairs
+from utils import normalizeString, filterPairs, indexesFromSentence
 
 CUDA = torch.cuda.is_available()
 device = torch.device("cuda" if CUDA else "cpu")
@@ -116,7 +116,56 @@ voc = Vocabulary('Cornell Movie-Dialogue Corpus')
 pairs = filterPairs(pairs,MAX_LENGTH = 10)
 print('After filtering, there are {} conversation pairs'.format(len(pairs)))
 
+# Loop through each pair and add them to the vocabulary
+for pair in pairs:
+    voc.addSentence(pair[0])
+    voc.addSentence(pair[1])
 
+print('Counted Words:',voc.num_words)
+
+# Minimum word frequency threshold for trimming
+MIN_COUNT = 3
+# Trim vocabulary
+voc.trim(min_count = MIN_COUNT)
+# Filter out all pairs of sentences which have trimmed words
+keep_pairs = []
+for pair in pairs:
+    input_sentence = pair[0]
+    output_sentence = pair[1]
+    keep_input = True
+    keep_output = True
+    # check input sentence
+    for word in input_sentence.split(' '):
+        if word not in voc.word2index:
+            keep_input = False
+            break
+    for word in output_sentence.split(' '):
+        if word not in voc.word2index:
+            keep_output = False
+            break
+    # Only keep the pairs that do not contain trimmed words in their input or output sentence
+    if keep_input and keep_output:
+        keep_pairs.append(pair)
+
+print('Trimmed from {} pairs to {}, {:.2f}% of total remaining'.format(len(pairs),len(keep_pairs), 100*len(keep_pairs)/len(pairs)))
+
+# If we are interested in speeding up training and/or would like to 
+# leverage GPU parallelization capabilitites, we will need to train with 
+# mini-batches. Using mini-batches also means that we must be mindful of the
+# variation of sentence length in our batches. To accomodate sentences of different
+# sizes in teh same batch, we will make our batched input tensor of 
+# shape(max_length, batch size), where sentences shorter than the max_length are 
+# zero padded after an EOS_token. If we simply convert our English sentences to 
+# tensors by converting words to thier indexes(indexFromSentence) and zero-pad,
+# our tesor would have shape(batch_size, max_length) and indexing the first dimension
+# would return a full sequence across all time-steps. However, we need to be able
+# to index our batch along time and across all sequences in teh batch. Therefore,
+# we transpose our input batch shape to (max_length, batch_size) so that indexing
+# across the first dimension returns a time step across all sentences in the batch.
+# We handle this transpose implicitly in the zeroPadding function.
+
+# indexes from sentences
+indexesFromSentence(voc,pairs[1][0])
 
 
 
