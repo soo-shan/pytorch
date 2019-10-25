@@ -1,17 +1,18 @@
-import torch
-import torch.nn as nn
-from torch import optim
-import torch.nn.functional as F
+# import torch.nn as nn
+# from torch import optim
+# import torch.nn.functional as F
 import csv
 import random
 import os
 import codecs
 import itertools
+import utils
+from torch import cuda, device
 from vocab import Vocabulary
-from utils import normalizeString, filterPairs, indexesFromSentence
 
-CUDA = torch.cuda.is_available()
-device = torch.device("cuda" if CUDA else "cpu")
+
+CUDA = cuda.is_available()
+device = device("cuda" if CUDA else "cpu")
 
 # # Data Preprocessing
 lines_filepath = os.path.join('data/cornell_movie_dialogs_corpus','movie_lines.txt')
@@ -107,13 +108,13 @@ delimiter = str(codecs.decode(delimiter,'unicode_escape'))
 print('Reading and processing file. \nPlease wait ...')
 lines = open(datafile,encoding='utf-8').read().strip().split('\n')
 # Split every line into pairs and normalize
-pairs = [[normalizeString(s) for s in pair.split('\t')] for pair in lines]
+pairs = [[utils.normalizeString(s) for s in pair.split('\t')] for pair in lines]
 print('Done Reading!')
 
 # Instantial a vocabulary class
 voc = Vocabulary('Cornell Movie-Dialogue Corpus')
 
-pairs = filterPairs(pairs,MAX_LENGTH = 10)
+pairs = utils.filterPairs(pairs,MAX_LENGTH = 10)
 print('After filtering, there are {} conversation pairs'.format(len(pairs)))
 
 # Loop through each pair and add them to the vocabulary
@@ -165,7 +166,24 @@ print('Trimmed from {} pairs to {}, {:.2f}% of total remaining'.format(len(pairs
 # We handle this transpose implicitly in the zeroPadding function.
 
 # indexes from sentences
-indexesFromSentence(voc,pairs[1][0])
+# utils.indexesFromSentence(voc,keep_pairs[1][0]) # Testing function
+
+# # Example for validation
+# small_batch_size = 5
+# batches = utils.batch2TrainData(voc, [random.choice(keep_pairs) for _ in range(small_batch_size)])
+# input_variable, lengths, target_variable, mask, max_target_len = batches
+
+# print('Input Variable: ')
+# print(input_variable)
+# print('Lengths: ', lengths)
+# print('target_variable: ')
+# print(target_variable)
+# print('mask: ')
+# print(mask)
+# print('max_target_len:', max_target_len)
+
+
+
 
 
 
