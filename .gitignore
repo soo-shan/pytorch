@@ -1,7 +1,9 @@
 .ipynb_checkpoints
 *.mkv
+*.mp4
 *.description
 .vscode
 .idea
 *.code-workspace
+data
 *__pycache__
